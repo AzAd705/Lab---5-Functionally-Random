@@ -1,6 +1,6 @@
-// Name: Adil Azizov
+//Name: Adil Azizov
 // Date: 01.12.2025
-// Github: https://github.com/AzAd705/Lab---5-Functionally-Random/tree/main/Lab5
+// Link: https://github.com/AzAd705/Lab---5-Functionally-Random
 
 using System;
 using System.Windows.Forms;
@@ -12,33 +12,71 @@ namespace Lab5
         public Form1()
         {
             InitializeComponent();
+            radRollStats.CheckedChanged += radRollStats_CheckedChanged;
         }
 
+        /* Name: Adil Azizov
+         * Date: November 2025
+         * This program rolls one dice or calculates mark stats.
+         * Link to your repo in GitHub: https://github.com/AzAd705/Lab---5-Functionally-Random
+         * */
+
+        //class-level random object
         Random rand = new Random();
 
         private void Form1_Load(object sender, EventArgs e)
         {
+            //select one roll radiobutton
+            // Look for the radio button - it might have a different name
             if (Controls.Find("radOneRoll", true).Length > 0)
             {
                 ((RadioButton)Controls.Find("radOneRoll", true)[0]).Checked = true;
             }
+
+            //add your name to end of form title
             this.Text += " - Adil Azizov";
         }
 
+        // Make sure this event handler is connected to radOneRoll_CheckedChanged event
         private void radOneRoll_CheckedChanged(object sender, EventArgs e)
+        {
+            try
+            {
+                // Based on the radiobutton selected, show or hide the appropriate groupbox 
+                // and call the appropriate Clear method
+                RadioButton rad = sender as RadioButton;
+                if (rad != null && rad.Checked)
+                {
+                    // Show One Roll group, hide Mark Stats group
+                    Control grpOneRoll = Controls.Find("grpOneRoll", true)[0];
+                    Control grpMarkStats = Controls.Find("grpMarkStats", true)[0];
+
+                    grpOneRoll.Visible = true;
+                    grpMarkStats.Visible = false;
+                    ClearStats(); // Clear the stats section when switching to One Roll
+                }
+                else if (rad != null && !rad.Checked)
+                {
+                    // Show Mark Stats group, hide One Roll group
+                    Control grpOneRoll = Controls.Find("grpOneRoll", true)[0];
+                    Control grpMarkStats = Controls.Find("grpMarkStats", true)[0];
+
+                    grpOneRoll.Visible = false;
+                    grpMarkStats.Visible = true;
+                    ClearOneRoll(); // Clear the dice roll section when switching to Mark Stats
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show($"Error in radio button change: {ex.Message}");
+            }
+        }
+        private void radRollStats_CheckedChanged(object sender, EventArgs e)
         {
             try
             {
                 RadioButton rad = sender as RadioButton;
                 if (rad != null && rad.Checked)
-                {
-                    Control grpOneRoll = Controls.Find("grpOneRoll", true)[0];
-                    Control grpMarkStats = Controls.Find("grpMarkStats", true)[0];
-                    grpOneRoll.Visible = true;
-                    grpMarkStats.Visible = false;
-                    ClearStats();
-                }
-                else if (rad != null && !rad.Checked)
                 {
                     Control grpOneRoll = Controls.Find("grpOneRoll", true)[0];
                     Control grpMarkStats = Controls.Find("grpMarkStats", true)[0];
@@ -55,11 +93,13 @@ namespace Lab5
 
         private void btnClear_Click(object sender, EventArgs e)
         {
+            //call the function
             ClearOneRoll();
         }
 
         private void btnReset_Click(object sender, EventArgs e)
         {
+            //call the function
             ClearStats();
         }
 
@@ -67,15 +107,22 @@ namespace Lab5
         {
             try
             {
-                int dice1 = RollDice();
-                int dice2 = RollDice();
-                Control lblDie1 = Controls.Find("lblDie1", true)[0];
-                Control lblDie2 = Controls.Find("lblDie2", true)[0];
+                int dice1, dice2;
+                //call ftn RollDice, placing returned number into integers
+                dice1 = RollDice();
+                dice2 = RollDice();
+
+                //place integers into labels
+                Control lblDie1 = Controls.Find("lblDice1", true)[0];
+                Control lblDie2 = Controls.Find("lblDice2", true)[0];
                 lblDie1.Text = dice1.ToString();
                 lblDie2.Text = dice2.ToString();
 
+                // call ftn GetName sending total and returning name
                 int total = dice1 + dice2;
                 string rollName = GetName(total);
+
+                //display name in label
                 Control lblRollName = Controls.Find("lblRollName", true)[0];
                 lblRollName.Text = rollName;
             }
@@ -85,13 +132,18 @@ namespace Lab5
             }
         }
 
+        /* Name: ClearOneRoll
+        *  Sent: nothing
+        *  Return: nothing
+        *  Clear the labels */
         private void ClearOneRoll()
         {
             try
             {
-                Control lblDie1 = Controls.Find("lblDie1", true)[0];
-                Control lblDie2 = Controls.Find("lblDie2", true)[0];
+                Control lblDie1 = Controls.Find("lblDice1", true)[0];
+                Control lblDie2 = Controls.Find("lblDice2", true)[0];
                 Control lblRollName = Controls.Find("lblRollName", true)[0];
+
                 lblDie1.Text = "";
                 lblDie2.Text = "";
                 lblRollName.Text = "";
@@ -99,16 +151,24 @@ namespace Lab5
             catch { }
         }
 
+        /* Name: ClearStats
+        *  Sent: nothing
+        *  Return: nothing
+        *  Reset nud to minimum value, chkbox unselected, 
+        *  clear labels and listbox */
         private void ClearStats()
         {
             try
             {
-                Control nudMarks = Controls.Find("nudMarks", true)[0];
+                // Reset numeric up/down
+                Control nudMarks = Controls.Find("nudNumber", true)[0];
                 ((NumericUpDown)nudMarks).Value = ((NumericUpDown)nudMarks).Minimum;
 
+                // Uncheck seed checkbox
                 Control chkSeed = Controls.Find("chkSeed", true)[0];
                 ((CheckBox)chkSeed).Checked = false;
 
+                // Clear labels
                 Control lblAverage = Controls.Find("lblAverage", true)[0];
                 Control lblPass = Controls.Find("lblPass", true)[0];
                 Control lblFail = Controls.Find("lblFail", true)[0];
@@ -116,23 +176,41 @@ namespace Lab5
                 lblPass.Text = "";
                 lblFail.Text = "";
 
+                // Clear listbox
                 Control lstMarks = Controls.Find("lstMarks", true)[0];
                 ((ListBox)lstMarks).Items.Clear();
             }
             catch { }
         }
 
+        /* Name: RollDice
+        * Sent: nothing
+        * Return: integer (1-6)
+        * Simulates rolling one dice */
         private int RollDice()
         {
-            return rand.Next(1, 7);
+            return rand.Next(1, 7); // 1-6 inclusive
         }
 
+        /* Name: GetName
+        * Sent: 1 integer (total of dice1 and dice2) 
+        * Return: string (name associated with total) 
+        * Finds the name of dice roll based on total.
+        * Use a switch statement with one return only
+        * Names: 2 = Snake Eyes
+        *        3 = Little Joe
+        *        5 = Fever
+        *        7 = Most Common
+        *        9 = Center Field
+        *        11 = Yo-leven
+        *        12 = Boxcars
+        * Anything else = No special name*/
         private string GetName(int total)
         {
             switch (total)
             {
                 case 2: return "Snake Eyes";
-                case 3: return "Little Joe";
+                case 3: return "Litle Joe";
                 case 5: return "Fever";
                 case 7: return "Most Common";
                 case 9: return "Center Field";
@@ -146,21 +224,29 @@ namespace Lab5
         {
             try
             {
-                Control lblDie1 = Controls.Find("lblDie1", true)[0];
-                Control lblDie2 = Controls.Find("lblDie2", true)[0];
-                bool hasData1 = DataPresent(lblDie1.Text);
-                bool hasData2 = DataPresent(lblDie2.Text);
+                //call ftn DataPresent twice sending string returning boolean
+                Control lblDice1 = Controls.Find("lblDice1", true)[0];
+                Control lblDice2 = Controls.Find("lblDice2", true)[0];
 
+                bool hasData1 = DataPresent(lblDice1.Text);
+                bool hasData2 = DataPresent(lblDice2.Text);
+
+                //if data present in both labels, call SwapData sending both strings
                 if (hasData1 && hasData2)
                 {
-                    string data1 = lblDie1.Text;
-                    string data2 = lblDie2.Text;
+                    string data1 = lblDice1.Text;
+                    string data2 = lblDice2.Text;
+
+                    // Swap the data
                     SwapData(ref data1, ref data2);
-                    lblDie1.Text = data1;
-                    lblDie2.Text = data2;
+
+                    //put data back into labels
+                    lblDice1.Text = data1;
+                    lblDice2.Text = data2;
                 }
                 else
                 {
+                    //if data not present in either label display error msg
                     MessageBox.Show("Both dice must have values to swap.", "Error",
                         MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
@@ -171,11 +257,19 @@ namespace Lab5
             }
         }
 
+        /* Name: DataPresent
+        * Sent: string
+        * Return: bool (true if data, false if not) 
+        * See if string is empty or not*/
         private bool DataPresent(string text)
         {
             return !string.IsNullOrWhiteSpace(text);
         }
 
+        /* Name: SwapData
+        * Sent: 2 strings
+        * Return: none 
+        * Swaps the memory locations of two strings*/
         private void SwapData(ref string str1, ref string str2)
         {
             string temp = str1;
@@ -187,28 +281,38 @@ namespace Lab5
         {
             try
             {
-                Control nudMarks = Controls.Find("nudMarks", true)[0];
+                // Store value from numeric up down
+                Control nudMarks = Controls.Find("nudNumber", true)[0];
                 int numMarks = (int)((NumericUpDown)nudMarks).Value;
+
+                // Declare integer array
                 int[] marks = new int[numMarks];
                 int pass = 0, fail = 0;
 
+
+                //check if seed value selected
                 Control chkSeed = Controls.Find("chkSeed", true)[0];
                 if (((CheckBox)chkSeed).Checked)
                 {
-                    rand = new Random(1000);
+                    rand = new Random(1000); // Fixed seed 1000
                 }
 
+                // Clear listbox
                 Control lstMarks = Controls.Find("lstMarks", true)[0];
                 ((ListBox)lstMarks).Items.Clear();
 
+                // Run while loop to fill array with random numbers 40-100
                 int i = 0;
                 while (i < numMarks)
                 {
-                    marks[i] = rand.Next(40, 101);
+                    marks[i] = rand.Next(40, 101); // 40-100
                     i++;
                 }
 
+                // Call CalcStats
                 double average = CalcStats(marks, ref pass, ref fail);
+
+                // Display average to 2 decimals, pass and fail
                 Control lblAverage = Controls.Find("lblAverage", true)[0];
                 Control lblPass = Controls.Find("lblPass", true)[0];
                 Control lblFail = Controls.Find("lblFail", true)[0];
@@ -216,6 +320,7 @@ namespace Lab5
                 lblPass.Text = pass.ToString();
                 lblFail.Text = fail.ToString();
 
+                // Add marks to listbox
                 foreach (int mark in marks)
                 {
                     ((ListBox)lstMarks).Items.Add(mark.ToString());
@@ -227,10 +332,16 @@ namespace Lab5
             }
         }
 
+        private void grpMarkStats_Enter(object sender, EventArgs e)
+        {
+            // This event handler is not needed for functionality
+        }
+
         private void chkSeed_CheckedChanged(object sender, EventArgs e)
         {
             try
             {
+                // If the checkbox is selected, ask the user if they want to use a seed value
                 CheckBox chk = sender as CheckBox;
                 if (chk != null && chk.Checked)
                 {
@@ -240,6 +351,7 @@ namespace Lab5
                         MessageBoxButtons.YesNo,
                         MessageBoxIcon.Question);
 
+                    // If they select No, unselect the checkbox
                     if (result == DialogResult.No)
                     {
                         chk.Checked = false;
@@ -267,7 +379,29 @@ namespace Lab5
             return marks.Length > 0 ? (double)sum / marks.Length : 0;
         }
 
-        private void chkSeed_CheckedChanged_1(object sender, EventArgs e) { }
-        private void radOneRoll_CheckedChanged_1(object sender, EventArgs e) { }
+        private void chkSeed_CheckedChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void radOneRoll_CheckedChanged_1(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblDice1_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void lblFail_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void groupBox1_Enter(object sender, EventArgs e)
+        {
+
+        }
     }
 }
